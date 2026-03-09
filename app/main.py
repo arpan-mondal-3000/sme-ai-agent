@@ -1,6 +1,6 @@
-from app.agent import agent
+from app.agent import agent_executor
 
-print("SME Business AI Agent")
+print("SME AI Business Consultant")
 
 while True:
 
@@ -9,6 +9,8 @@ while True:
     if query == "exit":
         break
 
-    response = agent.run(query)
+    result = agent_executor.invoke(
+        {"input": query}
+    )
 
-    print(response)
+    print(result["output"])

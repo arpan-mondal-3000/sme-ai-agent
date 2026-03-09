@@ -1,9 +1,11 @@
-from langchain_community.llms import Ollama
-from app.config import LLM_MODEL
+from langchain_community.chat_models import ChatOllama
 
 
 def load_llm():
 
-    llm = Ollama(model=LLM_MODEL)
+    llm = ChatOllama(
+        model="llama3.1:latest",
+        temperature=0
+    )
 
     return llm

@@ -1,28 +1,45 @@
-from langchain.tools import Tool
-from utils.financial_utils import calculate_profit, quarterly_summary
-from app.rag_pipeline import retrieve_financial_records
+from langchain_core.tools import tool
+from utils.financial_utils import calculate_profit, business_summary
+from app.rag_pipeline import retrieve_data
 
 
-financial_retriever = Tool(
-    name="Financial Retriever",
-    func=retrieve_financial_records,
-    description="Retrieve financial records for a specific month"
-)
+@tool
+def profit_tool(month: str) -> str:
+    """
+    Calculate the profit for a specific month.
 
-profit_tool = Tool(
-    name="Profit Calculator",
-    func=calculate_profit,
-    description="Calculate profit for a given month"
-)
+    The input MUST be exactly one of the following formats:
+    Jan-23, Feb-23, Mar-23, Apr-23, May-23, Jun-23, Jul-23, Aug-23, Sep-23, Oct-23
+    """
+    return calculate_profit(month)
 
-summary_tool = Tool(
-    name="Business Summary",
-    func=quarterly_summary,
-    description="Generate business performance summary"
-)
+
+@tool
+def summary_tool(query: str) -> str:
+    """
+    Generate a summary of the overall business performance.
+    Use this when the user asks for overall performance, trends, or summaries.
+    """
+    return business_summary(query)
+
+
+@tool
+def rag_tool(query: str) -> str:
+    """
+    Use this tool to retrieve financial records from the vector database.
+    Always use this tool if the user asks about:
+    - sales
+    - expenses
+    - customers
+    - inventory
+    - marketing spend
+    """
+    docs = retrieve_data(query)
+    return "\n".join(docs)
+
 
 tools = [
-    financial_retriever,
     profit_tool,
-    summary_tool
+    summary_tool,
+    rag_tool
 ]
