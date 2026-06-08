@@ -1,4 +1,4 @@
-LLM_MODEL = "llama3.1:latest"
+LLM_MODEL = "phi3:latest"
 
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 

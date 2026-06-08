@@ -1,11 +1,12 @@
-from langchain_community.chat_models import ChatOllama
-
+from langchain_groq import ChatGroq
+from dotenv import load_dotenv
+load_dotenv()
 
 def load_llm():
 
-    llm = ChatOllama(
-        model="llama3.1:latest",
-        temperature=0
+    llm = ChatGroq(
+        model="llama-3.1-8b-instant",
+        temperature=0.2
     )
 
     return llm

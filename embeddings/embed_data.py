@@ -1,32 +1,29 @@
+# ingest.py
 import pandas as pd
 import chromadb
 from sentence_transformers import SentenceTransformer
 
-df = pd.read_csv("data/sme_sales_data.csv")
-
 model = SentenceTransformer("all-MiniLM-L6-v2")
-
 client = chromadb.PersistentClient(path="vectorstore/chroma_db")
-
 collection = client.get_or_create_collection("sme_data")
 
-for i, row in df.iterrows():
+df = pd.read_csv("data/sme_sales_data.csv")
 
-    text = f"""
-Month: {row['Month']}
-Sales: {row['Sales']}
-Expenses: {row['Expenses']}
-Customers: {row['Customers']}
-Inventory Cost: {row['InventoryCost']}
-Marketing Spend: {row['MarketingSpend']}
-"""
+docs, embeddings, ids = [], [], []
 
-    embedding = model.encode(text).tolist()
-
-    collection.add(
-        ids=[str(i)],
-        embeddings=[embedding],
-        documents=[text]
+for _, row in df.iterrows():
+    # Rich text format so RAG retrieval carries full context
+    text = (
+        f"Month: {row['Month']}\n"
+        f"Sales: {row['Sales']}\n"
+        f"Expenses: {row['Expenses']}\n"
+        f"Customers: {row['Customers']}\n"
+        f"Inventory Cost: {row['InventoryCost']}\n"
+        f"Marketing Spend: {row['MarketingSpend']}"
     )
+    docs.append(text)
+    embeddings.append(model.encode(text).tolist())
+    ids.append(f"record_{row['Month']}")
 
-print("Embeddings stored.")
+collection.add(documents=docs, embeddings=embeddings, ids=ids)
+print(f"Ingested {len(docs)} records into ChromaDB")
