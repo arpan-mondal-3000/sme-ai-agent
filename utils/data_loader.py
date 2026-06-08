@@ -1,5 +1,5 @@
 import pandas as pd
-from app.config import DATA_PATH
+from core.config import DATA_PATH
 
 
 def load_data():

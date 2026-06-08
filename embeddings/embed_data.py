@@ -1,7 +1,9 @@
-# ingest.py
 import pandas as pd
 import chromadb
 from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv
+
+load_dotenv()
 
 model = SentenceTransformer("all-MiniLM-L6-v2")
 client = chromadb.PersistentClient(path="vectorstore/chroma_db")

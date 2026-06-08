@@ -1,0 +1,13 @@
+streamlit
+langchain==0.1.17
+langchain-groq
+langchain-community
+langchain-core
+chromadb
+sentence-transformers
+pandas
+python-dotenv
+torch
+transformers
+scikit-learn
+ollama

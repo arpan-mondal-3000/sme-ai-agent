@@ -1,0 +1,3 @@
+[console_scripts]
+sme-cli = run:main
+sme-ui = frontend.ui:main

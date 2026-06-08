@@ -6,6 +6,56 @@ from utils.financial_utils import (
     top_months,
 )
 from app.rag_pipeline import retrieve_data
+import pandas as pd
+from core.config import DATA_PATH
+
+_df = pd.read_csv(DATA_PATH)
+
+@tool
+def month_data_tool(month: str) -> str:
+    """
+    Use this to get EXACT financial data for a specific month.
+    Always prefer this over rag_tool when the user mentions a specific month.
+    Input must be in format: Jun-23, Jan-24, Mar-22, etc.
+    """
+    _df["Month_norm"] = _df["Month"].str.lower()
+    query = month.strip().lower()
+
+    # Try direct match first
+    row = _df[_df["Month_norm"] == query]
+
+    # Fallback: partial match (e.g. "jun" matches "jun-23")
+    if row.empty:
+        row = _df[_df["Month_norm"].str.startswith(query[:3])]
+        # If multiple matches, try to narrow by year
+        if len(row) > 1:
+            year_match = re.search(r"(\d{2,4})", month)
+            if year_match:
+                yr = year_match.group(1)[-2:]  # last 2 digits
+                row = row[row["Month_norm"].str.endswith(yr)]
+
+    if row.empty:
+        available = ", ".join(_df["Month"].tolist())
+        return f"Month '{month}' not found. Available: {available}"
+
+    r = row.iloc[0]
+    sales     = float(r["Sales"])
+    expenses  = float(r["Expenses"])
+    inv       = float(r["InventoryCost"])
+    mkt       = float(r["MarketingSpend"])
+    customers = int(r["Customers"])
+    profit    = sales - expenses - inv - mkt
+
+    return (
+        f"Month: {r['Month']}\n"
+        f"Sales: ₹{int(sales):,}\n"
+        f"Expenses: ₹{int(expenses):,}\n"
+        f"Inventory Cost: ₹{int(inv):,}\n"
+        f"Marketing Spend: ₹{int(mkt):,}\n"
+        f"Customers: {customers}\n"
+        f"Net Profit: ₹{int(profit):,}\n"
+        f"Profit Margin: {(profit/sales)*100:.1f}%"
+    )
 
 
 @tool
@@ -79,6 +129,7 @@ def rag_tool(query: str) -> str:
 
 
 tools = [
+    month_data_tool,
     profit_tool,
     summary_tool,
     compare_tool,

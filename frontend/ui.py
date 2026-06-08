@@ -1,14 +1,9 @@
-# import sys
-# import os
-
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 import streamlit as st
 from app.agent import agent_executor
 
 st.set_page_config(page_title="SME AI Consultant", page_icon="📊")
 
-st.title("📊 SME AI Business Consultant")
+st.title("SME AI Business Consultant")
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -36,7 +31,27 @@ if prompt:
     # Get agent response
     with st.chat_message("assistant"):
         with st.spinner("Analyzing business data..."):
-            response = agent_executor.run(prompt)
+            result = agent_executor.invoke({"input": prompt})
+            output = result.get("output", "").strip()
+
+            FAILURE_SIGNALS = [
+                "Agent stopped due to",
+                "Thought:",
+                "Action:",
+                "Observation:",
+                "Action Input:",
+            ]
+
+            if any(signal in output for signal in FAILURE_SIGNALS):
+                response = (
+                    "I couldn't form a complete answer. Please try:\n"
+                    "- Breaking it into simpler questions\n"
+                    "- Being more specific, e.g. *'What was the profit in June 2023?'*\n"
+                    "- Then follow up with *'Suggest improvements based on that'*"
+                )
+            else:
+                response = output
+
             st.markdown(response)
 
     st.session_state.messages.append({

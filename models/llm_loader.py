@@ -1,12 +1,8 @@
 from langchain_groq import ChatGroq
-from dotenv import load_dotenv
-load_dotenv()
+from core.config import LLM_MODEL, LLM_TEMPERATURE
 
 def load_llm():
-
-    llm = ChatGroq(
-        model="llama-3.1-8b-instant",
-        temperature=0.2
+    return ChatGroq(
+        model=LLM_MODEL,
+        temperature=LLM_TEMPERATURE
     )
-
-    return llm
